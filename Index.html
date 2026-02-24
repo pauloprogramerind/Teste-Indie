@@ -3,72 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndieStore - Apps & Jogos</title>
+    <title>IndieStore - Sua Vitrine de Jogos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #111b21; color: #e9edef; font-family: 'Roboto', sans-serif; }
-        .google-card { background-color: #1f2c33; transition: transform 0.2s; }
-        .google-card:hover { transform: translateY(-5px); background-color: #2a3942; }
-        .btn-google { background-color: #00a884; color: white; transition: 0.3s; }
-        .btn-google:hover { background-color: #008f6f; }
-        .modal { display: none; background: rgba(0,0,0,0.8); }
+        body { 
+            background-color: #0b0f12; 
+            color: #e8eaed; 
+            font-family: 'Roboto', sans-serif; 
+        }
+        /* Estilo dos Cards (Estilo Play Store) */
+        .app-card { 
+            background-color: transparent; 
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+        .app-card:hover { 
+            background-color: #202124; 
+        }
+        .app-card img {
+            border: 1px solid #3c4043;
+            border-radius: 20%; /* Estilo arredondado dos ícones do Google */
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+        /* Botão Principal */
+        .btn-primary { 
+            background-color: #01875f; /* Verde oficial Play Store */
+            color: white; 
+            font-weight: 500;
+        }
+        .btn-primary:hover { background-color: #016d4d; }
+
+        /* Estilo do Modal (Formulário Oculto) */
+        #uploadModal {
+            display: none; /* Começa escondido */
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
 
-    <header class="p-4 border-b border-gray-700 flex justify-between items-center sticky top-0 bg-[#111b21] z-50">
-        <h1 class="text-2xl font-bold text-[#00a884]">IndieStore</h1>
-        <button onclick="toggleModal()" class="btn-google px-4 py-2 rounded-lg font-medium">Postar App</button>
+    <header class="flex justify-between items-center p-4 border-b border-gray-800 sticky top-0 bg-[#0b0f12] z-50">
+        <div class="flex items-center gap-8">
+            <h1 class="text-2xl font-bold text-white tracking-tight">IndieStore</h1>
+            <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-400">
+                <a href="#" class="text-[#01875f] border-b-2 border-[#01875f] pb-1">Jogos</a>
+                <a href="#" class="hover:text-white transition">Apps</a>
+            </nav>
+        </div>
+        <button onclick="abrirModal()" class="btn-primary px-5 py-2 rounded-full text-sm">
+            Poste seu app
+        </button>
     </header>
 
-    <main class="p-6">
-        <h2 class="text-xl mb-6 font-semibold">Jogos e Apps Recomendados</h2>
-        <div id="appGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+    <main class="max-w-7xl mx-auto p-6">
+        <h2 class="text-xl font-medium mb-6">Novidades Indie</h2>
+        
+        <div id="appGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
             </div>
     </main>
 
-    <div id="uploadModal" class="modal fixed inset-0 flex items-center justify-center p-4">
-        <div class="bg-[#1f2c33] p-8 rounded-2xl w-full max-w-md border border-gray-600">
-            <h3 class="text-xl mb-4 font-bold">Novo App Indie</h3>
+    <div id="uploadModal" onclick="fecharModalFora(event)">
+        <div class="bg-[#202124] p-8 rounded-2xl w-full max-w-lg shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold">Enviar Novo Projeto</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+
             <form id="appForm" class="space-y-4">
-                <input type="text" id="nome" placeholder="Nome do App" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
-                <input type="url" id="linkArquivo" placeholder="Link do APK/EXE (Mediafire/Mega)" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
-                <input type="url" id="linkImagem" placeholder="Link da Capa/Logo (Imgur)" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
-                <textarea id="descricao" placeholder="Descrição (mín. 50 caracteres)" minlength="50" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none h-32" required></textarea>
-                
-                <div class="flex justify-end gap-3">
-                    <button type="button" onclick="toggleModal()" class="px-4 py-2 text-gray-400">Cancelar</button>
-                    <button type="submit" class="btn-google px-6 py-2 rounded-lg">Publicar</button>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">NOME DO APP</label>
+                    <input type="text" id="nome" placeholder="Ex: Meu Jogo Incrível" class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">LINK DO APK/EXE (Mediafire/Mega)</label>
+                        <input type="url" id="linkArquivo" placeholder="https://..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">LINK DA LOGO (Imgur)</label>
+                        <input type="url" id="linkImagem" placeholder="https://imgur.com/..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">DESCRIÇÃO (MÍN. 50 CARACTERES)</label>
+                    <textarea id="descricao" minlength="50" placeholder="Conte um pouco sobre seu projeto..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none h-32" required></textarea>
+                </div>
+
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-bold mt-4">
+                    PUBLICAR NA LOJA
+                </button>
             </form>
         </div>
     </div>
 
     <script>
         const appGrid = document.getElementById('appGrid');
-        const appForm = document.getElementById('appForm');
+        const modal = document.getElementById('uploadModal');
 
-        // Função para abrir/fechar modal
-        function toggleModal() {
-            const modal = document.getElementById('uploadModal');
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        // Funções para controlar o Modal
+        function abrirModal() {
+            modal.style.display = 'flex';
         }
 
-        // Função para criar o card do App
-        function addAppToGrid(nome, link, imagem, desc) {
+        function fecharModal() {
+            modal.style.display = 'none';
+        }
+
+        function fecharModalFora(event) {
+            fecharModal();
+        }
+
+        // Função para gerar o Card visual
+        function renderizarCard(nome, link, imagem, desc) {
             const card = document.createElement('div');
-            card.className = "google-card p-3 rounded-xl cursor-pointer";
+            card.className = "app-card p-2 cursor-pointer";
             card.innerHTML = `
-                <img src="${imagem}" alt="${nome}" class="w-full aspect-square object-cover rounded-lg mb-3 shadow-md">
-                <h4 class="font-medium truncate">${nome}</h4>
-                <p class="text-xs text-gray-400 mt-1 line-clamp-2">${desc}</p>
-                <a href="${link}" target="_blank" class="block mt-3 text-center text-sm text-[#00a884] font-bold">DOWNLOAD</a>
+                <img src="${imagem}" alt="${nome}" onerror="this.src='https://via.placeholder.com/150/202124/FFFFFF?text=App'">
+                <div class="mt-3">
+                    <h4 class="text-sm font-medium text-gray-100 truncate">${nome}</h4>
+                    <p class="text-xs text-[#01875f] font-bold mt-1 uppercase tracking-wider">Download Grátis</p>
+                    <p class="text-xs text-gray-500 mt-2 line-clamp-2">${desc}</p>
+                </div>
+                <a href="${link}" target="_blank" class="block w-full text-center py-1 mt-3 rounded border border-gray-700 text-xs hover:bg-gray-700 transition">Baixar</a>
             `;
-            appGrid.appendChild(card);
+            appGrid.prepend(card); // Adiciona no início da lista
         }
 
-        // Lógica do Formulário
-        appForm.onsubmit = (e) => {
+        // Processar o formulário
+        document.getElementById('appForm').onsubmit = (e) => {
             e.preventDefault();
             
             const nome = document.getElementById('nome').value;
@@ -76,15 +148,16 @@
             const imagem = document.getElementById('linkImagem').value;
             const desc = document.getElementById('descricao').value;
 
-            addAppToGrid(nome, link, imagem, desc);
+            renderizarCard(nome, link, imagem, desc);
             
-            appForm.reset();
-            toggleModal();
-            alert("App postado com sucesso (localmente)!");
+            e.target.reset();
+            fecharModal();
+            alert("Sucesso! Seu app foi listado.");
         };
 
-        // Exemplo inicial
-        addAppToGrid("Exemplo Indie", "#", "https://via.placeholder.com/150", "Esta é uma descrição de exemplo com mais de 50 caracteres para mostrar como o card se comporta.");
+        // Apps de exemplo ao carregar a página
+        renderizarCard("Pixel Quest", "#", "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=200", "Um RPG de aventura clássica com gráficos em pixel art e muitos desafios.");
+        renderizarCard("Space Invader Indie", "#", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200", "Defenda a galáxia neste shooter frenético criado por um desenvolvedor solo.");
     </script>
 </body>
 </html>
