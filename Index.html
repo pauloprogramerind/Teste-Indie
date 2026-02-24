@@ -3,161 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IndieStore - Sua Vitrine de Jogos</title>
+    <title>IndieStore - Apps & Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            background-color: #0b0f12; 
-            color: #e8eaed; 
-            font-family: 'Roboto', sans-serif; 
-        }
-        /* Estilo dos Cards (Estilo Play Store) */
-        .app-card { 
-            background-color: transparent; 
-            transition: all 0.3s ease;
-            border-radius: 12px;
-        }
-        .app-card:hover { 
-            background-color: #202124; 
-        }
-        .app-card img {
-            border: 1px solid #3c4043;
-            border-radius: 20%; /* Estilo arredondado dos ícones do Google */
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-        }
-        /* Botão Principal */
-        .btn-primary { 
-            background-color: #01875f; /* Verde oficial Play Store */
-            color: white; 
-            font-weight: 500;
-        }
-        .btn-primary:hover { background-color: #016d4d; }
-
-        /* Estilo do Modal (Formulário Oculto) */
-        #uploadModal {
-            display: none; /* Começa escondido */
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
+        body { background-color: #0b0f12; color: #e8eaed; font-family: 'Roboto', sans-serif; }
+        .app-card { background-color: transparent; transition: all 0.3s ease; border-radius: 12px; display: block; }
+        .app-card:hover { background-color: #202124; }
+        .app-card img { border: 1px solid #3c4043; border-radius: 22%; width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .btn-primary { background-color: #01875f; color: white; }
+        .filter-pill { border: 1px solid #3c4043; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .filter-pill.active { background-color: #01875f; border-color: #01875f; color: white; }
+        #uploadModal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; align-items: center; justify-content: center; overflow-y: auto; }
     </style>
 </head>
 <body>
 
-    <header class="flex justify-between items-center p-4 border-b border-gray-800 sticky top-0 bg-[#0b0f12] z-50">
-        <div class="flex items-center gap-8">
-            <h1 class="text-2xl font-bold text-white tracking-tight">IndieStore</h1>
-            <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-400">
-                <a href="#" class="text-[#01875f] border-b-2 border-[#01875f] pb-1">Jogos</a>
-                <a href="#" class="hover:text-white transition">Apps</a>
-            </nav>
+    <header class="p-4 border-b border-gray-800 sticky top-0 bg-[#0b0f12] z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-white">IndieStore</h1>
+            <button onclick="abrirModal()" class="btn-primary px-6 py-2 rounded-full text-sm font-medium">Poste seu app</button>
         </div>
-        <button onclick="abrirModal()" class="btn-primary px-5 py-2 rounded-full text-sm">
-            Poste seu app
-        </button>
+        
+        <div class="max-w-7xl mx-auto mt-4 flex flex-wrap gap-3 pb-2">
+            <div onclick="filtrar('todos', this)" class="filter-pill active">Todos</div>
+            <div onclick="filtrar('app', this)" class="filter-pill">Aplicativos</div>
+            <div onclick="filtrar('jogo', this)" class="filter-pill">Jogos</div>
+            <div class="h-6 w-[1px] bg-gray-700 mx-2"></div> <div onclick="filtrar('mobile', this)" class="filter-pill">Mobile</div>
+            <div onclick="filtrar('pc', this)" class="filter-pill">PC</div>
+        </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-6">
-        <h2 class="text-xl font-medium mb-6">Novidades Indie</h2>
-        
         <div id="appGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
             </div>
     </main>
 
-    <div id="uploadModal" onclick="fecharModalFora(event)">
-        <div class="bg-[#202124] p-8 rounded-2xl w-full max-w-lg shadow-2xl" onclick="event.stopPropagation()">
+    <div id="uploadModal">
+        <div class="bg-[#202124] p-8 rounded-2xl w-full max-w-lg my-8 mx-4 shadow-2xl">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-semibold">Enviar Novo Projeto</h3>
-                <button onclick="fecharModal()" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+                <h3 class="text-2xl font-semibold">Publicar Projeto</h3>
+                <button onclick="fecharModal()" class="text-gray-400 text-2xl">&times;</button>
             </div>
 
             <form id="appForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">NOME DO APP</label>
-                    <input type="text" id="nome" placeholder="Ex: Meu Jogo Incrível" class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
+                <input type="text" id="nome" placeholder="Nome do App/Jogo" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <select id="categoria" class="p-3 rounded-lg bg-[#303134] text-white outline-none">
+                        <option value="app">Aplicativo</option>
+                        <option value="jogo">Jogo</option>
+                    </select>
+                    <select id="plataforma" class="p-3 rounded-lg bg-[#303134] text-white outline-none">
+                        <option value="mobile">Mobile (APK)</option>
+                        <option value="pc">PC (.EXE)</option>
+                    </select>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">LINK DO APK/EXE (Mediafire/Mega)</label>
-                        <input type="url" id="linkArquivo" placeholder="https://..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-400 mb-1">LINK DA LOGO (Imgur)</label>
-                        <input type="url" id="linkImagem" placeholder="https://imgur.com/..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none" required>
-                    </div>
-                </div>
+                <input type="url" id="linkArquivo" placeholder="Link (Mediafire/Mega)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
+                <input type="url" id="linkImagem" placeholder="Link da Logo (Imgur)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
+                
+                <textarea id="descricao" minlength="50" placeholder="Descrição (mín. 50 caracteres)..." class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none h-24" required></textarea>
 
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">DESCRIÇÃO (MÍN. 50 CARACTERES)</label>
-                    <textarea id="descricao" minlength="50" placeholder="Conte um pouco sobre seu projeto..." class="w-full p-3 rounded-lg bg-[#303134] border border-transparent focus:border-[#01875f] text-white outline-none h-32" required></textarea>
-                </div>
-
-                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-bold mt-4">
-                    PUBLICAR NA LOJA
-                </button>
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-bold">LANÇAR AGORA</button>
             </form>
         </div>
     </div>
 
     <script>
-        const appGrid = document.getElementById('appGrid');
-        const modal = document.getElementById('uploadModal');
+        let appsData = []; // Array para guardar os apps na memória
 
-        // Funções para controlar o Modal
-        function abrirModal() {
-            modal.style.display = 'flex';
+        function abrirModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('uploadModal').style.display = 'none'; }
+
+        function renderizarGrid(filtro = 'todos') {
+            const grid = document.getElementById('appGrid');
+            grid.innerHTML = '';
+
+            appsData.forEach(app => {
+                // Lógica de filtro: verifica se o app bate com a categoria OU plataforma selecionada
+                if (filtro === 'todos' || app.categoria === filtro || app.plataforma === filtro) {
+                    const card = document.createElement('div');
+                    card.className = "app-card p-2 animate-fade-in";
+                    card.innerHTML = `
+                        <img src="${app.imagem}" alt="${app.nome}">
+                        <div class="mt-3">
+                            <h4 class="text-sm font-medium truncate">${app.nome}</h4>
+                            <div class="flex gap-2 mt-1">
+                                <span class="text-[10px] bg-gray-800 px-2 py-0.5 rounded text-gray-400 uppercase font-bold">${app.plataforma}</span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2 line-clamp-2">${app.descricao}</p>
+                        </div>
+                        <a href="${app.link}" target="_blank" class="block w-full text-center py-1 mt-3 rounded border border-gray-700 text-xs text-[#01875f] font-bold">BAIXAR</a>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
         }
 
-        function fecharModal() {
-            modal.style.display = 'none';
+        function filtrar(tipo, elemento) {
+            // Remove 'active' de todos e coloca no clicado
+            document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+            elemento.classList.add('active');
+            renderizarGrid(tipo);
         }
 
-        function fecharModalFora(event) {
-            fecharModal();
-        }
-
-        // Função para gerar o Card visual
-        function renderizarCard(nome, link, imagem, desc) {
-            const card = document.createElement('div');
-            card.className = "app-card p-2 cursor-pointer";
-            card.innerHTML = `
-                <img src="${imagem}" alt="${nome}" onerror="this.src='https://via.placeholder.com/150/202124/FFFFFF?text=App'">
-                <div class="mt-3">
-                    <h4 class="text-sm font-medium text-gray-100 truncate">${nome}</h4>
-                    <p class="text-xs text-[#01875f] font-bold mt-1 uppercase tracking-wider">Download Grátis</p>
-                    <p class="text-xs text-gray-500 mt-2 line-clamp-2">${desc}</p>
-                </div>
-                <a href="${link}" target="_blank" class="block w-full text-center py-1 mt-3 rounded border border-gray-700 text-xs hover:bg-gray-700 transition">Baixar</a>
-            `;
-            appGrid.prepend(card); // Adiciona no início da lista
-        }
-
-        // Processar o formulário
         document.getElementById('appForm').onsubmit = (e) => {
             e.preventDefault();
-            
-            const nome = document.getElementById('nome').value;
-            const link = document.getElementById('linkArquivo').value;
-            const imagem = document.getElementById('linkImagem').value;
-            const desc = document.getElementById('descricao').value;
+            const novoApp = {
+                nome: document.getElementById('nome').value,
+                categoria: document.getElementById('categoria').value,
+                plataforma: document.getElementById('plataforma').value,
+                link: document.getElementById('linkArquivo').value,
+                imagem: document.getElementById('linkImagem').value,
+                descricao: document.getElementById('descricao').value
+            };
 
-            renderizarCard(nome, link, imagem, desc);
-            
-            e.target.reset();
+            appsData.unshift(novoApp); // Adiciona no topo
+            renderizarGrid();
             fecharModal();
-            alert("Sucesso! Seu app foi listado.");
+            e.target.reset();
         };
 
-        // Apps de exemplo ao carregar a página
-        renderizarCard("Pixel Quest", "#", "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=200", "Um RPG de aventura clássica com gráficos em pixel art e muitos desafios.");
-        renderizarCard("Space Invader Indie", "#", "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200", "Defenda a galáxia neste shooter frenético criado por um desenvolvedor solo.");
+        // Seed inicial (Exemplos)
+        appsData.push({nome: "Editor Pro", categoria: "app", plataforma: "mobile", link: "#", imagem: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200", descricao: "Um editor de fotos completo para mobile feito para criativos."});
+        appsData.push({nome: "Cyber Runner", categoria: "jogo", plataforma: "pc", link: "#", imagem: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200", descricao: "Um jogo de corrida futurista para PC com luzes neon e alta velocidade."});
+        
+        renderizarGrid();
     </script>
 </body>
 </html>
