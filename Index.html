@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndieStore - Apps & Jogos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #111b21; color: #e9edef; font-family: 'Roboto', sans-serif; }
+        .google-card { background-color: #1f2c33; transition: transform 0.2s; }
+        .google-card:hover { transform: translateY(-5px); background-color: #2a3942; }
+        .btn-google { background-color: #00a884; color: white; transition: 0.3s; }
+        .btn-google:hover { background-color: #008f6f; }
+        .modal { display: none; background: rgba(0,0,0,0.8); }
+    </style>
+</head>
+<body>
+
+    <header class="p-4 border-b border-gray-700 flex justify-between items-center sticky top-0 bg-[#111b21] z-50">
+        <h1 class="text-2xl font-bold text-[#00a884]">IndieStore</h1>
+        <button onclick="toggleModal()" class="btn-google px-4 py-2 rounded-lg font-medium">Postar App</button>
+    </header>
+
+    <main class="p-6">
+        <h2 class="text-xl mb-6 font-semibold">Jogos e Apps Recomendados</h2>
+        <div id="appGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            </div>
+    </main>
+
+    <div id="uploadModal" class="modal fixed inset-0 flex items-center justify-center p-4">
+        <div class="bg-[#1f2c33] p-8 rounded-2xl w-full max-w-md border border-gray-600">
+            <h3 class="text-xl mb-4 font-bold">Novo App Indie</h3>
+            <form id="appForm" class="space-y-4">
+                <input type="text" id="nome" placeholder="Nome do App" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
+                <input type="url" id="linkArquivo" placeholder="Link do APK/EXE (Mediafire/Mega)" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
+                <input type="url" id="linkImagem" placeholder="Link da Capa/Logo (Imgur)" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none" required>
+                <textarea id="descricao" placeholder="Descrição (mín. 50 caracteres)" minlength="50" class="w-full p-3 rounded bg-[#2a3942] border-none text-white outline-none h-32" required></textarea>
+                
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="toggleModal()" class="px-4 py-2 text-gray-400">Cancelar</button>
+                    <button type="submit" class="btn-google px-6 py-2 rounded-lg">Publicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const appGrid = document.getElementById('appGrid');
+        const appForm = document.getElementById('appForm');
+
+        // Função para abrir/fechar modal
+        function toggleModal() {
+            const modal = document.getElementById('uploadModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        // Função para criar o card do App
+        function addAppToGrid(nome, link, imagem, desc) {
+            const card = document.createElement('div');
+            card.className = "google-card p-3 rounded-xl cursor-pointer";
+            card.innerHTML = `
+                <img src="${imagem}" alt="${nome}" class="w-full aspect-square object-cover rounded-lg mb-3 shadow-md">
+                <h4 class="font-medium truncate">${nome}</h4>
+                <p class="text-xs text-gray-400 mt-1 line-clamp-2">${desc}</p>
+                <a href="${link}" target="_blank" class="block mt-3 text-center text-sm text-[#00a884] font-bold">DOWNLOAD</a>
+            `;
+            appGrid.appendChild(card);
+        }
+
+        // Lógica do Formulário
+        appForm.onsubmit = (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value;
+            const link = document.getElementById('linkArquivo').value;
+            const imagem = document.getElementById('linkImagem').value;
+            const desc = document.getElementById('descricao').value;
+
+            addAppToGrid(nome, link, imagem, desc);
+            
+            appForm.reset();
+            toggleModal();
+            alert("App postado com sucesso (localmente)!");
+        };
+
+        // Exemplo inicial
+        addAppToGrid("Exemplo Indie", "#", "https://via.placeholder.com/150", "Esta é uma descrição de exemplo com mais de 50 caracteres para mostrar como o card se comporta.");
+    </script>
+</body>
+</html>
