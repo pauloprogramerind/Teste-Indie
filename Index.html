@@ -8,13 +8,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { background-color: #0b0f12; color: #e8eaed; font-family: 'Roboto', sans-serif; }
-        .app-card { background-color: transparent; transition: all 0.3s ease; border-radius: 12px; display: block; }
+        .app-card { background-color: transparent; transition: all 0.2s ease; border-radius: 12px; cursor: pointer; }
         .app-card:hover { background-color: #202124; }
         .app-card img { border: 1px solid #3c4043; border-radius: 22%; width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .btn-primary { background-color: #01875f; color: white; }
-        .filter-pill { border: 1px solid #3c4043; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .btn-primary { background-color: #01875f; color: white; transition: 0.2s; }
+        .btn-primary:hover { background-color: #016d4d; }
+        .filter-pill { border: 1px solid #3c4043; padding: 6px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; }
         .filter-pill.active { background-color: #01875f; border-color: #01875f; color: white; }
-        #uploadModal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; align-items: center; justify-content: center; overflow-y: auto; }
+        
+        /* Modais */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
+        .screenshot-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 8px; border: 1px solid #3c4043; }
     </style>
 </head>
 <body>
@@ -22,79 +26,102 @@
     <header class="p-4 border-b border-gray-800 sticky top-0 bg-[#0b0f12] z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold text-white">IndieStore</h1>
-            <button onclick="abrirModal()" class="btn-primary px-6 py-2 rounded-full text-sm font-medium">Poste seu app</button>
+            <button onclick="abrirModal('uploadModal')" class="btn-primary px-6 py-2 rounded-full text-sm font-medium">Poste seu app</button>
         </div>
         
         <div class="max-w-7xl mx-auto mt-4 flex flex-wrap gap-3 pb-2">
             <div onclick="filtrar('todos', this)" class="filter-pill active">Todos</div>
             <div onclick="filtrar('app', this)" class="filter-pill">Aplicativos</div>
             <div onclick="filtrar('jogo', this)" class="filter-pill">Jogos</div>
-            <div class="h-6 w-[1px] bg-gray-700 mx-2"></div> <div onclick="filtrar('mobile', this)" class="filter-pill">Mobile</div>
+            <div class="h-6 w-[1px] bg-gray-700 mx-2"></div>
+            <div onclick="filtrar('mobile', this)" class="filter-pill">Mobile</div>
             <div onclick="filtrar('pc', this)" class="filter-pill">PC</div>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto p-6">
-        <div id="appGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
-            </div>
+        <div id="appGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8"></div>
     </main>
 
-    <div id="uploadModal">
-        <div class="bg-[#202124] p-8 rounded-2xl w-full max-w-lg my-8 mx-4 shadow-2xl">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-semibold">Publicar Projeto</h3>
-                <button onclick="fecharModal()" class="text-gray-400 text-2xl">&times;</button>
-            </div>
-
+    <div id="uploadModal" class="modal-overlay" onclick="fecharModal('uploadModal')">
+        <div class="bg-[#202124] p-8 rounded-2xl w-full max-w-lg shadow-2xl" onclick="event.stopPropagation()">
+            <h3 class="text-2xl font-semibold mb-6">Publicar Projeto</h3>
             <form id="appForm" class="space-y-4">
                 <input type="text" id="nome" placeholder="Nome do App/Jogo" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
-                
                 <div class="grid grid-cols-2 gap-4">
-                    <select id="categoria" class="p-3 rounded-lg bg-[#303134] text-white outline-none">
-                        <option value="app">Aplicativo</option>
-                        <option value="jogo">Jogo</option>
-                    </select>
-                    <select id="plataforma" class="p-3 rounded-lg bg-[#303134] text-white outline-none">
-                        <option value="mobile">Mobile (APK)</option>
-                        <option value="pc">PC (.EXE)</option>
-                    </select>
+                    <select id="categoria" class="p-3 rounded-lg bg-[#303134] text-white outline-none"><option value="app">App</option><option value="jogo">Jogo</option></select>
+                    <select id="plataforma" class="p-3 rounded-lg bg-[#303134] text-white outline-none"><option value="mobile">Mobile</option><option value="pc">PC</option></select>
                 </div>
-
-                <input type="url" id="linkArquivo" placeholder="Link (Mediafire/Mega)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
+                <input type="url" id="linkArquivo" placeholder="Link do Download (Mediafire/Mega)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
                 <input type="url" id="linkImagem" placeholder="Link da Logo (Imgur)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none" required>
-                
-                <textarea id="descricao" minlength="50" placeholder="Descrição (mín. 50 caracteres)..." class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none h-24" required></textarea>
-
-                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-bold">LANÇAR AGORA</button>
+                <input type="text" id="screenshots" placeholder="Links das prints (separe por vírgula)" class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none">
+                <textarea id="descricao" minlength="50" placeholder="Descrição completa..." class="w-full p-3 rounded-lg bg-[#303134] text-white outline-none h-24" required></textarea>
+                <button type="submit" class="w-full btn-primary py-3 rounded-lg font-bold">LANÇAR</button>
             </form>
         </div>
     </div>
 
-    <script>
-        let appsData = []; // Array para guardar os apps na memória
+    <div id="detalhesModal" class="modal-overlay" onclick="fecharModal('detalhesModal')">
+        <div class="bg-[#111b21] w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <div id="detalhesConteudo">
+                </div>
+        </div>
+    </div>
 
-        function abrirModal() { document.getElementById('uploadModal').style.display = 'flex'; }
-        function fecharModal() { document.getElementById('uploadModal').style.display = 'none'; }
+    <script>
+        let appsData = [];
+
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function verDetalhes(index) {
+            const app = appsData[index];
+            const prints = app.screenshots ? app.screenshots.split(',') : [];
+            const conteudo = document.getElementById('detalhesConteudo');
+            
+            conteudo.innerHTML = `
+                <div class="p-6 md:p-10">
+                    <div class="flex flex-col md:flex-row gap-6 items-start">
+                        <img src="${app.imagem}" class="w-32 h-32 rounded-[22%] border border-gray-700">
+                        <div class="flex-1">
+                            <h2 class="text-3xl font-bold text-white">${app.nome}</h2>
+                            <p class="text-[#01875f] font-medium mt-1 uppercase text-sm">${app.plataforma} • ${app.categoria}</p>
+                            <a href="${app.link}" target="_blank" class="inline-block mt-6 btn-primary px-10 py-2 rounded-lg font-bold">Instalar / Baixar</a>
+                        </div>
+                    </div>
+
+                    <div class="mt-10">
+                        <h3 class="text-lg font-medium mb-4">Sobre este projeto</h3>
+                        <p class="text-gray-400 leading-relaxed whitespace-pre-line">${app.descricao}</p>
+                    </div>
+
+                    <div class="mt-10">
+                        <h3 class="text-lg font-medium mb-4">Capturas de tela</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${prints.map(img => `<img src="${img.trim()}" class="screenshot-thumb">`).join('')}
+                        </div>
+                    </div>
+                    
+                    <button onclick="fecharModal('detalhesModal')" class="mt-8 text-gray-500 hover:text-white text-sm">← Voltar para a loja</button>
+                </div>
+            `;
+            abrirModal('detalhesModal');
+        }
 
         function renderizarGrid(filtro = 'todos') {
             const grid = document.getElementById('appGrid');
             grid.innerHTML = '';
-
-            appsData.forEach(app => {
-                // Lógica de filtro: verifica se o app bate com a categoria OU plataforma selecionada
+            appsData.forEach((app, index) => {
                 if (filtro === 'todos' || app.categoria === filtro || app.plataforma === filtro) {
                     const card = document.createElement('div');
-                    card.className = "app-card p-2 animate-fade-in";
+                    card.className = "app-card p-2";
+                    card.onclick = () => verDetalhes(index);
                     card.innerHTML = `
                         <img src="${app.imagem}" alt="${app.nome}">
                         <div class="mt-3">
                             <h4 class="text-sm font-medium truncate">${app.nome}</h4>
-                            <div class="flex gap-2 mt-1">
-                                <span class="text-[10px] bg-gray-800 px-2 py-0.5 rounded text-gray-400 uppercase font-bold">${app.plataforma}</span>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2 line-clamp-2">${app.descricao}</p>
+                            <p class="text-xs text-gray-500 mt-1 uppercase">${app.plataforma}</p>
                         </div>
-                        <a href="${app.link}" target="_blank" class="block w-full text-center py-1 mt-3 rounded border border-gray-700 text-xs text-[#01875f] font-bold">BAIXAR</a>
                     `;
                     grid.appendChild(card);
                 }
@@ -102,7 +129,6 @@
         }
 
         function filtrar(tipo, elemento) {
-            // Remove 'active' de todos e coloca no clicado
             document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
             elemento.classList.add('active');
             renderizarGrid(tipo);
@@ -116,18 +142,25 @@
                 plataforma: document.getElementById('plataforma').value,
                 link: document.getElementById('linkArquivo').value,
                 imagem: document.getElementById('linkImagem').value,
+                screenshots: document.getElementById('screenshots').value,
                 descricao: document.getElementById('descricao').value
             };
-
-            appsData.unshift(novoApp); // Adiciona no topo
+            appsData.unshift(novoApp);
             renderizarGrid();
-            fecharModal();
+            fecharModal('uploadModal');
             e.target.reset();
         };
 
-        // Seed inicial (Exemplos)
-        appsData.push({nome: "Editor Pro", categoria: "app", plataforma: "mobile", link: "#", imagem: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=200", descricao: "Um editor de fotos completo para mobile feito para criativos."});
-        appsData.push({nome: "Cyber Runner", categoria: "jogo", plataforma: "pc", link: "#", imagem: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200", descricao: "Um jogo de corrida futurista para PC com luzes neon e alta velocidade."});
+        // Exemplo inicial
+        appsData.push({
+            nome: "Cyber Runner 2026", 
+            categoria: "jogo", 
+            plataforma: "pc", 
+            link: "#", 
+            imagem: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=200", 
+            screenshots: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=600,https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=600",
+            descricao: "Um jogo de corrida incrível com gráficos neon. Sobreviva em uma cidade futurista dominada por máquinas!\n\nRequisitos: Windows 10 ou superior."
+        });
         
         renderizarGrid();
     </script>
